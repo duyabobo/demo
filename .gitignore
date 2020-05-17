@@ -1,0 +1,13 @@
+*.swp
+*.pyc
+./log
+log
+*/log
+*.log
+*/.settings/
+*/.DS_Store
+.DS_Store
+*/.idea/
+.idea/
+venv/*
+example/
