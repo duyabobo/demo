@@ -5,9 +5,11 @@
 from handler1 import ExampleHandler1
 from handler2 import ExampleHandler2
 from handler3 import ExampleHandler3
+from handler4 import ExampleHandler4
 
 handlers = [
     (r'/1$', ExampleHandler1),
     (r'/2$', ExampleHandler2),
     (r'/3$', ExampleHandler3),
+    (r'/4$', ExampleHandler4),
 ]
