@@ -2,11 +2,11 @@
 # coding=utf-8
 # __author__ = ‘duyabo‘
 # __created_at__ = '2020/1/1'
-from handler1 import ExampleHandler1
-from handler2 import ExampleHandler2
-from handler3 import ExampleHandler3
-from handler4 import ExampleHandler4
-from handler5 import ExampleHandler5
+from handlers.handler1 import ExampleHandler1
+from handlers.handler2 import ExampleHandler2
+from handlers.handler3 import ExampleHandler3
+from handlers.handler4 import ExampleHandler4
+from handlers.handler5 import ExampleHandler5
 
 handlers = [
     (r'/1$', ExampleHandler1),
