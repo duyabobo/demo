@@ -27,6 +27,7 @@ class ExampleHandler5(RequestHandler):
         para_name = self.get_argument('para_name', default='default')  # 接受参数，如果必传就不给出默认值
         print(para_name)
         add.delay(2, 2)  # 适合 celery 任务代码和 业务代码放到一个代码仓库里
+        # If the task isn’t registered in the current process you can use
         app.send_task('celery_tasks.task1.add', (2, 2))  # 可以实现 celery 代码和 业务代码不在一个仓库的异步调用
         response = {'msg': 'abc', 'icp': '京ICP备20005743号-1'}
         self.write(response)
