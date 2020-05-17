@@ -4,8 +4,10 @@
 # __created_at__ = '2020/1/1'
 from handler1 import ExampleHandler1
 from handler2 import ExampleHandler2
+from handler3 import ExampleHandler3
 
 handlers = [
     (r'/1$', ExampleHandler1),
     (r'/2$', ExampleHandler2),
+    (r'/3$', ExampleHandler3),
 ]
