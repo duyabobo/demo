@@ -11,6 +11,7 @@ import tornado.web
 from concurrent.futures import ThreadPoolExecutor
 
 from urls import handlers
+from utils.database import engine
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -26,6 +27,7 @@ def main():
         'static_path': 'static',
     })
     application.executor = ThreadPoolExecutor(10)
+    application.engine = engine
     http_server = tornado.httpserver.HTTPServer(application)
     http_server.listen(port)
     print ('>>>>> Starting development server at http://localhost:{}/ <<<<<'.format(port))
