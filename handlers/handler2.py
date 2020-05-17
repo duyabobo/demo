@@ -3,13 +3,13 @@
 import time
 
 from tornado.concurrent import run_on_executor
-from tornado.web import RequestHandler
 
+from base_handler import BaseHandler
 from utils.concurrency import ConcurrencyExecutor
 from utils.time_logger import time_logger
 
 
-class ExampleHandler2(RequestHandler):
+class ExampleHandler2(BaseHandler):
     # 这里的例子用来实验 time_logger 和 ConcurrencyExecutor
     __model__ = ''
 
@@ -29,6 +29,5 @@ class ExampleHandler2(RequestHandler):
         con_exe.add_job(time.sleep, 10)
         con_exe.add_job(time.sleep, 10)
         con_exe()
-        response = {'msg': 'abc', 'icp': '京ICP备20005743号-1'}
-        self.write(response)
-        return response
+        resp_data = {'msg': 'abc', 'icp': '京ICP备20005743号-1'}
+        return self.response(resp_data=resp_data)

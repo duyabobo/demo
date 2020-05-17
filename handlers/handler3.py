@@ -1,12 +1,11 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
-import json
 import time
 
 import requests
 from tornado.concurrent import run_on_executor
-from tornado.web import RequestHandler
 
+from base_handler import BaseHandler
 from utils.concurrency import ConcurrencyExecutor
 from utils.time_logger import time_logger
 
@@ -14,7 +13,7 @@ APPLE_AUTH_KEY_URL = 'https://appleid.apple.com/auth/keys'
 BAIDU_URL = 'https://www.baidu.com'
 
 
-class ExampleHandler3(RequestHandler):
+class ExampleHandler3(BaseHandler):
     # 这里的例子用来实验 time_logger 和 ConcurrencyExecutor
     __model__ = ''
 
@@ -47,6 +46,5 @@ class ExampleHandler3(RequestHandler):
         con_exe.add_job(time.sleep, 6)
         ret = con_exe()
         # ret = self.__request_some_url(APPLE_AUTH_KEY_URL)
-        response = {'msg': 'abc', 'icp': '京ICP备20005743号-1', 'ret': ret}
-        self.write(response)
-        return response
+        resp_data = {'msg': 'abc', 'icp': '京ICP备20005743号-1', 'ret': ret}
+        return self.response(resp_data=resp_data)

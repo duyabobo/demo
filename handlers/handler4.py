@@ -4,8 +4,8 @@ import json
 import time
 
 import requests
-from tornado.web import RequestHandler
 
+from base_handler import BaseHandler
 from utils.concurrency import ConcurrencyExecutor
 from utils.time_logger import time_logger
 from utils.monitor import monitor
@@ -14,7 +14,7 @@ APPLE_AUTH_KEY_URL = 'https://appleid.apple.com/auth/keys'
 BAIDU_URL = 'https://www.baidu.com'
 
 
-class ExampleHandler4(RequestHandler):
+class ExampleHandler4(BaseHandler):
     # 这里的例子用来实验 monitor 和 auth_checker
     __model__ = ''
 
@@ -46,5 +46,5 @@ class ExampleHandler4(RequestHandler):
         con_exe.add_job(time.sleep, 6)
         ret = con_exe()
         # ret = self.__request_some_url(APPLE_AUTH_KEY_URL)
-        response = {'msg': 'abc', 'icp': '京ICP备20005743号-1', 'ret': ret}
-        return response
+        resp_data = {'msg': 'abc', 'icp': '京ICP备20005743号-1', 'ret': ret}
+        return self.response(resp_data=resp_data)
