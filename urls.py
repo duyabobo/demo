@@ -7,6 +7,7 @@ from handlers.handler2 import ExampleHandler2
 from handlers.handler3 import ExampleHandler3
 from handlers.handler4 import ExampleHandler4
 from handlers.handler5 import ExampleHandler5
+from handlers.handler6 import ExampleHandler6
 
 handlers = [
     (r'/1$', ExampleHandler1),
@@ -14,4 +15,5 @@ handlers = [
     (r'/3$', ExampleHandler3),
     (r'/4$', ExampleHandler4),
     (r'/5$', ExampleHandler5),
+    (r'/6$', ExampleHandler6),
 ]
