@@ -42,3 +42,15 @@ class UserDepositChanges(BaseModel):
             deal_type=deal_type,
             deal_money=deal_money,
         )
+
+    @classmethod
+    def add_changes(cls, from_uid, to_uid, deal_money):
+        """
+        增加金额转移流水，这里也是属于依赖 dao（持久层逻辑）的业务逻辑，在充血模型中，划分到 model 层
+        :param from_uid:
+        :param to_uid:
+        :param deal_money:
+        :return:
+        """
+        cls.add_one(from_uid, to_uid, DEAL_TYPE_PAY, deal_money*-1)
+        cls.add_one(to_uid, from_uid, DEAL_TYPE_COLLECTION, deal_money)

@@ -40,6 +40,19 @@ class UserDeposit(BaseModel):
         return cls.update(money=cls.money + money_changed).where(cls.user_id == user_id).execute()
 
     @classmethod
+    def change_money(cls, from_uid, to_uid, money_changed):
+        """
+        余额转移，这就不是简单的 dao（即持久化操作），也不是简单的与 dao（即持久化操作）无关的单条记录属性这样的业务逻辑
+        而是与 dao（即持久化操作）有关的业务逻辑，在充血模型中，就要划分到 model 层
+        :param from_uid:
+        :param to_uid:
+        :param money_changed:
+        :return:
+        """
+        UserDeposit.update_money(from_uid, money_changed * -1)  # 付款逻辑
+        UserDeposit.update_money(to_uid, money_changed)  # 付款逻辑
+
+    @classmethod
     def get_deposit(cls, user_id):
         """
         查询用户的存款

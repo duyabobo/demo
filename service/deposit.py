@@ -1,8 +1,6 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 from model.user_deposit import UserDeposit
-from model.user_deposit_changes import DEAL_TYPE_COLLECTION
-from model.user_deposit_changes import DEAL_TYPE_PAY
 from model.user_deposit_changes import UserDepositChanges
 
 
@@ -32,9 +30,9 @@ class DepositService(object):
             return -1
         # 为了简单，不实现单次/单日消费上限这些逻辑
 
-        UserDeposit.update_money(self.from_uid, deal_money*-1)  # 付款逻辑
-        UserDepositChanges.add_one(self.from_uid, self.to_uid, DEAL_TYPE_PAY, deal_money*-1)
-
-        UserDeposit.update_money(self.to_uid, deal_money)  # 收款逻辑
-        UserDepositChanges.add_one(self.to_uid, self.from_uid, DEAL_TYPE_COLLECTION, deal_money)
+        # 这里把同一个数据模型的，依赖于 dao（即持久层逻辑）的业务逻辑也划分到 model 层
+        # 但是仍然保留了不同数据模型的业务逻辑在 service 层
+        # 同时权限检查/事务管理等这些逻辑，也都需要继续保留在 service 层
+        UserDeposit.change_money(self.from_uid, self.to_uid, deal_money)
+        UserDepositChanges.add_changes(self.from_uid, self.to_uid, deal_money)
         return 0
