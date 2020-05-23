@@ -7,7 +7,7 @@ from datetime import datetime
 from peewee import DateTimeField
 from peewee import IntegerField
 
-from base import BaseModel
+from model.base import BaseModel
 
 
 class UserAnswer(BaseModel):

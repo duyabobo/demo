@@ -14,10 +14,6 @@ class ExampleHandler1(BaseHandler):
     # 可以在请求这个接口的时候，后面加上不同的请求参数，就可以看到异步非阻塞效果了！！
     __model__ = ''
 
-    def __init__(self, application, request, **kwargs):
-        self.executor = application.executor
-        super(ExampleHandler1, self).__init__(application, request, **kwargs)
-
     @run_on_executor
     def get(self):
         """注释

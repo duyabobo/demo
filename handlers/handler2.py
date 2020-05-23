@@ -13,10 +13,6 @@ class ExampleHandler2(BaseHandler):
     # 这里的例子用来实验 time_logger 和 ConcurrencyExecutor
     __model__ = ''
 
-    def __init__(self, application, request, **kwargs):
-        self.executor = application.executor
-        super(ExampleHandler2, self).__init__(application, request, **kwargs)
-
     @run_on_executor
     @time_logger
     def get(self):

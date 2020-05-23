@@ -15,10 +15,6 @@ class ExampleHandler5(BaseHandler):
     # 这里的例子用来实验 celery
     __model__ = ''
 
-    def __init__(self, application, request, **kwargs):
-        self.executor = application.executor
-        super(ExampleHandler5, self).__init__(application, request, **kwargs)
-
     @run_on_executor
     @time_logger
     def get(self):

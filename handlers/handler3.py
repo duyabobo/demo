@@ -17,10 +17,6 @@ class ExampleHandler3(BaseHandler):
     # 这里的例子用来实验 time_logger 和 ConcurrencyExecutor
     __model__ = ''
 
-    def __init__(self, application, request, **kwargs):
-        self.executor = application.executor
-        super(ExampleHandler3, self).__init__(application, request, **kwargs)
-
     @time_logger
     def __request_apple(self, url):
         """发出某个url的网络请求"""

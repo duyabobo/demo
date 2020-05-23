@@ -18,10 +18,6 @@ class ExampleHandler4(BaseHandler):
     # 这里的例子用来实验 monitor 和 auth_checker
     __model__ = ''
 
-    def __init__(self, application, request, **kwargs):
-        self.executor = application.executor
-        super(ExampleHandler4, self).__init__(application, request, **kwargs)
-
     @time_logger
     def __request_apple(self, url):
         """发出某个url的网络请求"""

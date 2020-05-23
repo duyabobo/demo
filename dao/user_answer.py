@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
-from models import UserAnswer
+from models_with_sqlalchemy import UserAnswer
 
 
 def get_answers_by_uid(db_session, user_id):

@@ -11,6 +11,7 @@ from utils.const import RESP_OK
 class BaseHandler(RequestHandler):
     def __init__(self, application, request, **kwargs):
         self.application = application
+        self.executor = application.executor
         self._db_session = None
         super(BaseHandler, self).__init__(self.application, request, **kwargs)
 
