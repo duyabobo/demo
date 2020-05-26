@@ -15,7 +15,7 @@ DEPOSIT_TYPE_BLACK_CARD = 4
 DEPOSIT_TYPE_BANK_SPECIAL = 5
 
 
-class UserDeposit(BaseModel):
+class UserDepositModel(BaseModel):
     """用户存款信息表"""
 
     class Meta:
@@ -49,8 +49,8 @@ class UserDeposit(BaseModel):
         :param money_changed:
         :return:
         """
-        UserDeposit.update_money(from_uid, money_changed * -1)  # 付款逻辑
-        UserDeposit.update_money(to_uid, money_changed)  # 付款逻辑
+        cls.update_money(from_uid, money_changed * -1)  # 付款逻辑
+        cls.update_money(to_uid, money_changed)  # 收款逻辑
 
     @classmethod
     def get_deposit(cls, user_id):

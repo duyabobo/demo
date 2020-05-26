@@ -1,10 +1,11 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
-from model.user_deposit import UserDeposit
-from model.user_deposit_changes import UserDepositChanges
+from model.user_deposit import UserDepositModel
+from model.user_deposit_changes import UserDepositChangesModel
 
 
-class DepositService(object):
+class PayService(object):
+    """service 层边界：根据业务耦合度划分 service，管理事务控制，并调用多个领域层（也就是 model 层）"""
 
     def __init__(self, from_uid, to_uid):
         self.from_uid = from_uid
@@ -15,15 +16,17 @@ class DepositService(object):
     @property
     def from_deposit(self):
         if not self.__from_deposit:
-            self.__from_deposit = UserDeposit.get_deposit(self.from_uid)
+            self.__from_deposit = UserDepositModel.get_deposit(self.from_uid)
         return self.__from_deposit
 
-    def deposit_change(self, deal_money):
+    def pay(self, deal_money):
         """
-        完成交易
+        支付行为
         :param deal_money:
         :return: 0 成功，-1 失败
         """
+        if deal_money <= 0:
+            return -1
         if not self.from_deposit:
             return -1
         if self.from_deposit.need_check_money and self.from_deposit.money < deal_money:  # 余额不足
@@ -33,6 +36,6 @@ class DepositService(object):
         # 这里把同一个数据模型的，依赖于 dao（即持久层逻辑）的业务逻辑也划分到 model 层
         # 但是仍然保留了不同数据模型的业务逻辑在 service 层
         # 同时权限检查/事务管理等这些逻辑，也都需要继续保留在 service 层
-        UserDeposit.change_money(self.from_uid, self.to_uid, deal_money)
-        UserDepositChanges.add_changes(self.from_uid, self.to_uid, deal_money)
+        UserDepositModel.change_money(self.from_uid, self.to_uid, deal_money)
+        UserDepositChangesModel.add_changes(self.from_uid, self.to_uid, deal_money)
         return 0

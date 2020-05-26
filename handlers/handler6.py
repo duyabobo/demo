@@ -3,23 +3,23 @@
 from tornado.concurrent import run_on_executor
 
 from base_handler import BaseHandler
-from model.user import User
-from model.user_deposit import UserDeposit
-from service.deposit import DepositService
-from utils.time_logger import time_logger
+from model.user import UserModel
+from model.user_deposit import UserDepositModel
+from service.deposit import PayService
+from utils.monitor import monitor
 
 
 class ExampleHandler6(BaseHandler):
+    """ handler 层边界：接收参数，调用应用层服务或领域层（也就是 service 层/ model 层），处理返回"""
     __model__ = ''
 
-    @run_on_executor
-    @time_logger
+    @monitor
     def get(self):
         """查询个人账户
         """
         user_id = int(self.get_argument('user_id'))
-        user_info = User.get_user_info(user_id)
-        deposit_info = UserDeposit.get_deposit(user_id)
+        user_info = UserModel.get_user_info(user_id)
+        deposit_info = UserDepositModel.get_deposit(user_id)
         resp_data = {
             'user_info': {
                 'user_id': user_id,
@@ -32,15 +32,14 @@ class ExampleHandler6(BaseHandler):
         }
         return self.response(resp_data=resp_data)
 
-    @run_on_executor
-    @time_logger
+    @monitor
     def put(self):
-        """账户变更：交易或者存/取钱
+        """账户变更：付款交易
         """
         from_uid = self.get_argument('user_id')
         to_uid = self.get_argument('to_uid')
         deal_money = self.get_argument('deal_money')
-        ds = DepositService(from_uid, to_uid)
-        ret = ds.deposit_change(deal_money)
-        resp_data = {'deposit_change_ret': ret}
+        ds = PayService(from_uid, to_uid)
+        ret = ds.pay(deal_money)
+        resp_data = {'pay_ret': ret}
         return self.response(resp_data=resp_data)

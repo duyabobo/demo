@@ -9,7 +9,7 @@ from peewee import IntegerField
 from base import BaseModel
 
 
-class User(BaseModel):
+class UserModel(BaseModel):
     """用户表"""
 
     class Meta:

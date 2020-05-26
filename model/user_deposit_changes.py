@@ -11,7 +11,7 @@ DEAL_TYPE_PAY = 0
 DEAL_TYPE_COLLECTION = 1
 
 
-class UserDepositChanges(BaseModel):
+class UserDepositChangesModel(BaseModel):
     """存款变动流水表，每次交易，付款者和收款者都会在这里记录一条记录（付款者增加一条付款记录，收款者增加一条收款记录）"""
 
     class Meta:
