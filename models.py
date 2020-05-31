@@ -17,7 +17,7 @@ Base = declarative_base()
 
 class User(Base):
     """用户表"""
-    __tablename__ = 'user_answer'
+    __tablename__ = 'user'
 
     id = Column(Integer, primary_key=True)  # 自增
     name = Column(String)  # 用户 id
@@ -58,6 +58,6 @@ class UserDepositChanges(Base):
     user_id = Column(Integer, default=0)  # 用户id
     partner_uid = Column(Integer, default=0)  # 与之配对的 uid
     deal_type = Column(Integer, default=0)  # 变动类型：0 收款，2 付款，为了简单，不实现存钱/取钱逻辑
-    deal_money =Column(Integer, default=0)  # 变动金额(分)
+    deal_money = Column(Integer, default=0)  # 变动金额(分)
     updated_time = Column(TIMESTAMP, default=func.now(), onupdate=func.now())  # 最新更新时间
     created_time = Column(TIMESTAMP, default=func.now())  # 创建时间

@@ -63,7 +63,7 @@ def auth_checker(func):
 
 if __name__ == '__main__':
     expire_time = time.time() + 7*24*3600
-    access_token = jwt.encode({'user_id': 'user_id', 'exp': expire_time},
+    access_token = jwt.encode({'user_id': 41, 'exp': expire_time},
                               PRIVATE_KEY_TOKEN, algorithm=ALGORITHM_TOKEN)  # 服务端产生，作为 restfull 请求时无状态请求的令牌
     expire_time = time.time() + 60
     sign = jwt.encode({'access_token': access_token, 'exp': expire_time},

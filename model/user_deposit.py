@@ -59,7 +59,7 @@ class UserDepositModel(BaseModel):
         :param user_id:
         :return:
         """
-        return cls.select().where(cls.user_id == user_id)
+        return cls.select().where(cls.user_id == user_id).first()
 
     @property
     def need_check_money(self):

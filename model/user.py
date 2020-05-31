@@ -27,4 +27,4 @@ class UserModel(BaseModel):
         :param user_id:
         :return:
         """
-        return cls.select().where(cls.id == user_id)
+        return cls.select().where(cls.id == user_id).first()
