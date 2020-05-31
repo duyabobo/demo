@@ -13,6 +13,7 @@ class BaseHandler(RequestHandler):
         self.application = application
         self.executor = application.executor
         self._db_session = None
+        self.user_id = None
         super(BaseHandler, self).__init__(self.application, request, **kwargs)
 
     @property

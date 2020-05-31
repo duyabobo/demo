@@ -17,12 +17,11 @@ class ExampleHandler6(BaseHandler):
     def get(self):
         """查询个人账户
         """
-        user_id = int(self.get_argument('user_id'))
-        user_info = UserModel.get_user_info(user_id)
-        deposit_info = UserDepositModel.get_deposit(user_id)
+        user_info = UserModel.get_user_info(self.user_id)
+        deposit_info = UserDepositModel.get_deposit(self.user_id)
         resp_data = {
             'user_info': {
-                'user_id': user_id,
+                'user_id': self.user_id,
                 'name': user_info.name,
             },
             'deposit_info': {
@@ -36,7 +35,7 @@ class ExampleHandler6(BaseHandler):
     def put(self):
         """账户变更：付款交易
         """
-        from_uid = self.get_argument('user_id')
+        from_uid = self.user_id
         to_uid = self.get_argument('to_uid')
         deal_money = self.get_argument('deal_money')
         ds = PayService(from_uid, to_uid)
