@@ -8,12 +8,14 @@ from handlers.handler3 import ExampleHandler3
 from handlers.handler4 import ExampleHandler4
 from handlers.handler5 import ExampleHandler5
 from handlers.handler6 import ExampleHandler6
+from handlers.handler7 import ExampleHandler7
 
 handlers = [
-    (r'/1$', ExampleHandler1),
-    (r'/2$', ExampleHandler2),
-    (r'/3$', ExampleHandler3),
-    (r'/4$', ExampleHandler4),
-    (r'/5$', ExampleHandler5),
-    (r'/6$', ExampleHandler6),
+    (r'/1$', ExampleHandler1),  # run_on_executor demo
+    (r'/2$', ExampleHandler2),  # gevent + time_log + sleep demo
+    (r'/3$', ExampleHandler3),  # gevent + time_log + request demo
+    (r'/4$', ExampleHandler4),  # jwt + 多重装饰器 demo
+    (r'/5$', ExampleHandler5),  # celery demo
+    (r'/6$', ExampleHandler6),  # 充血模型 demo
+    (r'/7$', ExampleHandler7),  # 贫血模型 demo
 ]
