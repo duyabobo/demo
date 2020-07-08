@@ -15,7 +15,7 @@ BAIDU_URL = 'https://www.baidu.com'
 
 
 class ExampleHandler4(BaseHandler):
-    # 这里的例子用来实验 monitor 和 auth_checker
+    # 这里的例子用来实验 monitor 和 token_checker
     __model__ = ''
 
     @time_logger

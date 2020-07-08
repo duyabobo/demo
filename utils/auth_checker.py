@@ -32,26 +32,84 @@ tQxCnJxbAdRXfJ2LrrGgqfNeSmyMWKbmtk/jmjTDS57r22tzlayjam0CQQDWRlY9
 4EWdeW3dbazwfEOTPR8SlTHd7DALfDPc7S+IL1VMl0yt2FDTZbHG0Plp40IzSkmI
 erQFLJ3WFjlsRPPr
 -----END PRIVATE KEY-----
-'''  # 认知服务独有
+'''  # 认证服务独有
 
 
-def auth_checker(func):
+def _check_sign(sign):
+    return jwt.decode(sign, SIGN_SECRET, algorithm=ALGORITHM_SIGN)
+
+
+def _get_user_info(sign):
+    """
+    从 sign 解析用户信息
+    :return:
+    """
+    data = _check_sign(sign)
+    access_token = data['access_token']  # token 里可以解析出 user_id
+    token_info = jwt.decode(access_token, PUBLIC_KEY_TOKEN, algorithm=ALGORITHM_TOKEN)
+    user_id = token_info['user_id']
+    is_newest_login_device = token_info['login_mark'] == get_newest_login_mark(user_id)
+    return {"user_id": user_id, "is_newest_login_device": is_newest_login_device}
+
+
+def sign_checker(func):
+    """
+    校验 sign，sign 的作用在于：能够证明客户端身份。
+    除非 app 被反编译了（h5另说）。
+    :param func:
+    :return:
+    """
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs):
         sign = self.get_argument('sign')
         response = None
         try:
-            data = jwt.decode(sign, SIGN_SECRET, algorithm=ALGORITHM_SIGN)
-            req_id = data['exp']
-            access_token = data['access_token']  # token 里可以解析出 user_id
-            token_info = jwt.decode(access_token, PUBLIC_KEY_TOKEN, algorithm=ALGORITHM_TOKEN)
-            user_id = token_info['user_id']
-            self.user_id = user_id
-            # 把 req_id 放到缓存，设置缓存过期时间5分钟，同一个 req_id，只会处理一次，否则就丢弃掉
-            # task_node = self.task_node
-            # key = 'user_id:%s:req_id:%s' % (user_id, req_id)
-            # if not task_node.public_redis.setnx(key, 1, 300):
-            #     response = {'msg': 'duplicated req_id[%s]' % req_id}
+            _check_sign(sign)
+        except Exception as e:
+            response = {'msg': 'request error, e[%s]' % e}
+        if not response:
+            response = func(self, *args, **kwargs)
+        self.write(response)
+        return response
+
+    return wrapper
+
+
+def token_checker(func):
+    """
+    检查 sign 和 access_token，access_token 的作用在于：能够证明用户身份。
+    :param func:
+    :return:
+    """
+    @functools.wraps(func)
+    def wrapper(self, *args, **kwargs):
+        sign = self.get_argument('sign')
+        response = None
+        try:
+            self.user_info = _get_user_info(sign)
+            self.user_id = self.user_info['user_id']
+        except Exception as e:
+            response = {'msg': 'request error, e[%s]' % e}
+        if not response:
+            response = func(self, *args, **kwargs)
+        self.write(response)
+        return response
+    return wrapper
+
+
+def right_checker(func):
+    """
+    检查 sign 和 access_token 和 right，right 的作用在于：能够证明用户权限（只能最新登陆的用户才有权限，比如看课程视频）。
+    :param func:
+    :return:
+    """
+    @functools.wraps(func)
+    def wrapper(self, *args, **kwargs):
+        sign = self.get_argument('sign')
+        response = None
+        try:
+            self.user_info = _get_user_info(sign)
+            assert self.user_info['is_newest_login_device']
         except Exception as e:
             response = {'msg': 'request error, e[%s]' % e}
         if not response:
@@ -70,3 +128,12 @@ if __name__ == '__main__':
                       SIGN_SECRET, algorithm=ALGORITHM_SIGN)  # 客户端生成后，传给服务端验证
 
     print(sign)  # 产生一个 sign，拿去请求 restful
+    s = time.time()
+    # 本地执行 一万次 对称解密 + 一万次 非对称解密，大概消耗 7 s。每次对称解密0.2毫秒，每次非对称解密0.5毫秒左右。
+    for i in range(10000):
+        data = _check_sign(sign)
+        access_token = data['access_token']  # token 里可以解析出 user_id
+        token_info = jwt.decode(access_token, PUBLIC_KEY_TOKEN, algorithm=ALGORITHM_TOKEN)
+        # print token_info
+    e = time.time()
+    print (e-s)

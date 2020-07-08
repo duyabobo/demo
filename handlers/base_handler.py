@@ -6,13 +6,16 @@ from sqlalchemy.orm import sessionmaker
 from tornado.web import RequestHandler
 
 from utils.const import RESP_OK
+from utils.database import redis_cli
 
 
 class BaseHandler(RequestHandler):
     def __init__(self, application, request, **kwargs):
         self.application = application
         self.executor = application.executor
+        self.redis_cli = redis_cli
         self._db_session = None
+        self.user_info = None
         self.user_id = None
         super(BaseHandler, self).__init__(self.application, request, **kwargs)
 
@@ -30,6 +33,7 @@ class BaseHandler(RequestHandler):
     def response(self, resp_data=None, resp_status=RESP_OK):
         if not resp_data:
             resp_data = {}
+        resp_data.update(self.user_info)  # 每个接口都返回用户当前是否是最新登陆的设备，客户端可酌情提醒是否重新登陆
         resp_data.update(resp_status)
         resp = json.dumps(resp_data)
         self.write(resp)
