@@ -36,7 +36,11 @@ erQFLJ3WFjlsRPPr
 
 
 def _check_sign(sign):
-    return jwt.decode(sign, SIGN_SECRET, algorithm=ALGORITHM_SIGN)
+    data = jwt.decode(sign, SIGN_SECRET, algorithm=ALGORITHM_SIGN)
+    exp = data['exp']  # 过期时间戳，精确到微秒，假设不会有两个请求的 exp 是一样的
+    assert request_is_first_received(exp)  # 就是一个 redis 的 setnx 操作，防止重放攻击，设置 redis 缓存过期时间到 exp 本身
+
+    return data
 
 
 def _get_user_info(sign):
@@ -47,14 +51,15 @@ def _get_user_info(sign):
     data = _check_sign(sign)
     access_token = data['access_token']  # token 里可以解析出 user_id
     token_info = jwt.decode(access_token, PUBLIC_KEY_TOKEN, algorithm=ALGORITHM_TOKEN)
-    user_id = token_info['user_id']
-    is_newest_login_device = token_info['login_mark'] == get_newest_login_mark(user_id)
-    return {"user_id": user_id, "is_newest_login_device": is_newest_login_device}
+
+    # get_newest_login_mark 依赖 redis，具体不做实现
+    is_newest_login_device = token_info['login_mark'] == get_newest_login_mark(token_info['user_id'])
+    return {"user_id": token_info['user_id'], "is_newest_login_device": is_newest_login_device}
 
 
 def sign_checker(func):
     """
-    校验 sign，sign 的作用在于：能够证明客户端身份。
+    校验 sign，sign 的作用在于：能够证明客户端身份。游客请求的接口认证，登录前的认证，比如请求验证码接口。
     除非 app 被反编译了（h5另说）。
     :param func:
     :return:
@@ -77,7 +82,7 @@ def sign_checker(func):
 
 def token_checker(func):
     """
-    检查 sign 和 access_token，access_token 的作用在于：能够证明用户身份。
+    检查 sign 和 access_token，access_token 的作用在于：能够证明用户身份。登录后的普通接口请求认证。
     :param func:
     :return:
     """
@@ -99,7 +104,7 @@ def token_checker(func):
 
 def right_checker(func):
     """
-    检查 sign 和 access_token 和 right，right 的作用在于：能够证明用户权限（只能最新登陆的用户才有权限，比如看课程视频）。
+    检查 sign 和 access_token 和 right，right 的作用在于：能够证明用户权限。只能最新登陆的用户才有权限请求的接口，比如看课程视频，比如共享单车会员扫码骑车。
     :param func:
     :return:
     """
@@ -109,6 +114,7 @@ def right_checker(func):
         response = None
         try:
             self.user_info = _get_user_info(sign)
+            self.user_id = self.user_info['user_id']
             assert self.user_info['is_newest_login_device']
         except Exception as e:
             response = {'msg': 'request error, e[%s]' % e}
