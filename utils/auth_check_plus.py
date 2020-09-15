@@ -35,23 +35,41 @@ class Checker(object):
         """对请求进行检查，拦截无效/非法/恶意的请求。
         攻击是不能完全防控的，还需要监控日志识别恶意ip和虚假user，并进行管控和清理。"""
         self.check_failed_cnt()  # 有爬取用户信息攻击行为时放开，1次redis查询操作
+        self.check_success_cnt()  # 有消耗服务资源攻击行为时放开，1～3次redis操作
         secret = self.check_secret()  # 1次redis查询操作
         exp = self.check_sign(secret)  # 1次解密操作
         self.check_unique(exp)  # 1～2次redis写入操作
-        self.check_success_cnt()  # 有消耗服务资源攻击行为时放开，1～4次redis写入操作
 
     def fail(self):
-        """失败处理"""
-        key = FAILED_CNT_ONE_MINUTE.format(remote_ip=self.remote_ip)
-        failed_cnt = self.redis_cli.incr(key)
+        """校验失败处理"""
+        failed_key = FAILED_CNT_ONE_MINUTE.format(remote_ip=self.remote_ip)
+        failed_cnt = self.redis_cli.incr(failed_key)
         if failed_cnt == 1:
             self.redis_cli.expire(60)
 
+    def success(self):
+        """校验成功处理"""
+        success_cnt_key = SUCCESS_CNT_ONE_MINUTE.format(user_id=self.user_id)
+        success_cnt = self.redis_cli.incr(success_cnt_key)
+        if success_cnt == 1:
+            self.redis_cli.expire(60)
+        return success_cnt
+
     def check_failed_cnt(self):
         """防止撞库"""
-        key = FAILED_CNT_ONE_MINUTE.format(remote_ip=self.remote_ip)
-        failed_cnt = self.redis_cli.get(key) or 0
+        failed_key = FAILED_CNT_ONE_MINUTE.format(remote_ip=self.remote_ip)
+        failed_cnt = self.redis_cli.get(failed_key) or 0
         assert failed_cnt < FAILED_CNT_LIMIT_ONE_MINUTE, 'failed too frequent'
+
+    def check_success_cnt(self):
+        """防止伪造"""
+        success_cnt_key = SUCCESS_CNT_ONE_MINUTE.format(user_id=self.user_id)
+        success_cnt = self.redis_cli.get(success_cnt_key) or 0
+        if success_cnt > SUCCESS_CNT_LIMIT_ONE_MINUTE:
+            self.redis_cli.delete(success_cnt_key)
+            secret_key = SECRET_UID_KEY.format(user_id=self.user_id)
+            self.redis_cli.delete(secret_key)
+            raise Exception('success too frequent')
 
     def check_secret(self):
         """身份认证"""
@@ -73,18 +91,6 @@ class Checker(object):
         ret = self.redis_cli.setnx(key, 1)
         assert int(ret), 'set unique error'
         self.redis_cli.expireat(key)
-
-    def check_success_cnt(self):
-        """防止伪造"""
-        success_cnt_key = SUCCESS_CNT_ONE_MINUTE.format(user_id=self.user_id)
-        success_cnt = self.redis_cli.incr(success_cnt_key)
-        if success_cnt == 1:
-            self.redis_cli.expire(60)
-        if success_cnt > SUCCESS_CNT_LIMIT_ONE_MINUTE:
-            self.redis_cli.delete(success_cnt_key)
-            secret_key = SECRET_UID_KEY.format(user_id=self.user_id)
-            self.redis_cli.delete(secret_key)
-            raise Exception('success too frequent')
 
 
 def request_checker(func):
@@ -109,6 +115,8 @@ def request_checker(func):
             checker.fail()
             response = RESP_AUTH_CHECK_ERROR
             gen_log.error('request_msg[%s], err[%s]', request_msg, e)
+        else:
+            checker.success()
 
         if not response:
             try:
