@@ -1,7 +1,17 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
+from datetime import datetime
+from time import time
+
 from model.user_deposit import UserDepositModel
 from model.user_deposit_changes import UserDepositChangesModel
+from models_with_peewee import UserAnswer
+
+
+class Node(object):
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
 
 
 class PayService(object):
@@ -18,6 +28,31 @@ class PayService(object):
         if not self.__from_deposit:
             self.__from_deposit = UserDepositModel.get_deposit(self.from_uid)
         return self.__from_deposit
+
+    @staticmethod
+    def test_rpc_func(**kwargs):
+        return kwargs, 1, datetime.now()
+
+    @staticmethod
+    def test_rpc_func2(**kwargs):
+        return kwargs, 2, time()
+
+    @staticmethod
+    def test_rpc_func3(**kwargs):
+        return kwargs, 3, Node(kwargs.get('a', 1), kwargs.get('b', 2))
+
+    @staticmethod
+    def test_rpc_func4(**kwargs):
+        return kwargs, 4, (kwargs.get('a', 1), kwargs.get('b', 2))
+
+    @staticmethod
+    def test_rpc_func5(**kwargs):
+        return kwargs, 5, [kwargs.get('a', 1), kwargs.get('b', 2)]
+
+    @staticmethod
+    def test_rpc_func6(**kwargs):
+        answers = UserAnswer.get_answers_by_uid(user_id=1)
+        return kwargs, 6, answers
 
     def pay(self, deal_money):
         """
