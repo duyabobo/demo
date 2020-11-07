@@ -29,9 +29,8 @@ class Shadow(object):
         self.default_res = default_res
 
     def __call__(self, **kwargs):
-        body = kwargs
         try:
-            response = CONNECT_POOL.request("POST", self.route.url, body=json.dumps(body))
+            response = CONNECT_POOL.request("POST", self.route.url, body=json.dumps(kwargs))
             res = pickle.loads(response.data)
             # log
         except Exception as e:

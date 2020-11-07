@@ -55,4 +55,3 @@ class Handler(object):
         for module, func_name in self.func_list:
             _rpc_handlers.append(self.get_rpc_handler(module, func_name))
         return _rpc_handlers
-
