@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*-coding: utf-8 -*-
-import json
 import pickle
 
 from peewee import ModelSelect
@@ -38,12 +37,15 @@ class Handler(object):
         class RPCHandler(RequestHandler):
             def post(self):
                 if self.request.remote_ip not in WHITE_LIST:
-                    return
+                    return self.response({'error_no': -1, 'error_msg': 'remote_ip error'})
                 func = getattr(module, func_name, None)
                 if not func:
-                    return
-                res = func(**json.loads(self.request.body))
-                return self.write(pickle.dumps(cls.object_2_dict(res)))
+                    return self.response({'error_no': -2, 'error_msg': 'func error'})
+                res = func(**pickle.loads(self.request.body))
+                return self.response({'error_no': 0, 'data': cls.object_2_dict(res)})
+
+            def response(self, res):
+                return self.write(pickle.dumps(res))
 
         path = '.{}.{}.{}$'.format(module.__module__, module.__name__, func_name)
         url = path.replace('.', '/')

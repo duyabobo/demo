@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*-coding: utf-8 -*-
-import json
 import pickle
 
 import urllib3
@@ -30,10 +29,10 @@ class Shadow(object):
 
     def __call__(self, **kwargs):
         try:
-            response = CONNECT_POOL.request("POST", self.route.url, body=json.dumps(kwargs))
+            response = CONNECT_POOL.request("POST", self.route.url, body=pickle.dumps(kwargs))
             res = pickle.loads(response.data)
-            # log
+            # log res
+            return res['error_no'], res.get('data', {})
         except Exception as e:
-            res = self.default_res
-            # log
-        return res
+            # log e
+            return 1, self.default_res
