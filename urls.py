@@ -15,12 +15,12 @@ from rpc_service.helper.service import Handler
 from service.deposit import PayService
 
 rpc_server_handlers = Handler([
-    (PayService, 'test_rpc_func'),
-    (PayService, 'test_rpc_func2'),
-    (PayService, 'test_rpc_func3'),
-    (PayService, 'test_rpc_func4'),
-    (PayService, 'test_rpc_func5'),
-    (PayService, 'test_rpc_func6'),
+    (PayService, PayService.test_rpc_func),
+    (PayService, PayService.test_rpc_func2),
+    (PayService, PayService.test_rpc_func3),
+    (PayService, PayService.test_rpc_func4),
+    (PayService, PayService.test_rpc_func5),
+    (PayService, PayService.test_rpc_func6),
 ]).handlers  # 同一个业务线下的rpc和业务共享同一个套代码，但是建议rpc服务器和业务服务器分开部署，同时建议rpc的这些func都专门定义在特定类的静态方法中。
 
 

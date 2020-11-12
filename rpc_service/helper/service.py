@@ -33,27 +33,24 @@ class Handler(object):
         return input_object
 
     @classmethod
-    def get_rpc_handler(cls, module, func_name):
+    def get_rpc_handler(cls, module, func):
         class RPCHandler(RequestHandler):
             def post(self):
                 if self.request.remote_ip not in WHITE_LIST:
                     return self.response({'error_no': -1, 'error_msg': 'remote_ip error'})
-                func = getattr(module, func_name, None)
-                if not func:
-                    return self.response({'error_no': -2, 'error_msg': 'func error'})
                 res = func(**pickle.loads(self.request.body))
                 return self.response({'error_no': 0, 'data': cls.object_2_dict(res)})
 
             def response(self, res):
                 return self.write(pickle.dumps(res))
 
-        path = '.{}.{}.{}$'.format(module.__module__, module.__name__, func_name)
+        path = '.{}.{}.{}$'.format(module.__module__, module.__name__, func.__name__)
         url = path.replace('.', '/')
         return url, RPCHandler
 
     @property
     def handlers(self):
         _rpc_handlers = []
-        for module, func_name in self.func_list:
-            _rpc_handlers.append(self.get_rpc_handler(module, func_name))
+        for module, func in self.func_list:
+            _rpc_handlers.append(self.get_rpc_handler(module, func))
         return _rpc_handlers
