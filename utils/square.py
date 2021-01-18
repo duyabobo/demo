@@ -10,6 +10,7 @@ class NumberNode(object):
         self.square_result = 0
         self.current_target_number = 0
         self.square_result_str = ''
+        self.finished = False
 
     @property
     def data_list(self):
@@ -30,7 +31,7 @@ class NumberNode(object):
 
     def get_target_number(self, index):
         if index < self.data_list_len:
-            return self.data_list[index]
+            return self.data_list[self.data_list_len-1-index]
         return 0
 
     def get_reducer(self, index_ret):
@@ -45,6 +46,8 @@ class NumberNode(object):
     def reload_current_target_number(self, index, index_ret):
         minute_ret = self.current_target_number - self.get_reducer(index_ret)
         self.current_target_number = minute_ret * 100 + self.get_target_number(index)
+        if not self.current_target_number and index == self.data_list_len:
+            self.finished = True
 
     def get_index_ret(self):
         for i in range(9, -1, -1):
@@ -58,7 +61,7 @@ class NumberNode(object):
         index_ret = 0
         self.reload_current_target_number(index, index_ret)
         self.reload_result(index_ret)
-        while self.current_target_number:
+        while not self.finished:
             index_ret = self.get_index_ret()
 
             index += 1
@@ -68,8 +71,6 @@ class NumberNode(object):
             print index_ret
             print self.square_result_str
             time.sleep(0.1)
-            if index == self.data_list_len:
-                print '.'
 
         print index_ret
         print self.square_result_str
