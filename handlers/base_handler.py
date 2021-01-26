@@ -33,7 +33,7 @@ class BaseHandler(RequestHandler):
     def response(self, resp_data=None, resp_status=RESP_OK):
         if not resp_data:
             resp_data = {}
-        resp_data.update(self.user_info)  # 每个接口都返回用户当前是否是最新登陆的设备，客户端可酌情提醒是否重新登陆
+        # resp_data.update(self.user_info)  # 每个接口都返回用户当前是否是最新登陆的设备，客户端可酌情提醒是否重新登陆
         resp_data.update(resp_status)
         resp = json.dumps(resp_data)
         self.write(resp)

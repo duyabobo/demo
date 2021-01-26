@@ -18,6 +18,10 @@ from database import redis_cli
 ALGORITHM_SIGN = 'HS256'
 UNIQUE_EXP_KEY = 'unique:exp:{exp}'
 SECRET_UID_KEY = 'secret:uid:{user_id}'
+
+# 下面是限流方案。
+# 滑动窗口算法实现，更精准，但也更复杂，姑且不考虑。如有意，可以加多个限流标准：比如现在建立的是分钟级别的，可以增加十分钟级别的，半小时级别的...。
+# nginx ngx_http_limit_req_module 的 ip+url 进行频率限制，粒度更细，对资源保护更好，建议对无 sign 接口设置。
 SUCCESS_CNT_ONE_MINUTE = 'success_cnt:one_minute:{user_id}'
 FAILED_CNT_ONE_MINUTE = 'failed_cnt:one_minute:{remote_ip}'
 SUCCESS_CNT_LIMIT_ONE_MINUTE = 300
