@@ -8,7 +8,7 @@ COLOR_RED = 1
 
 
 class RBNode(object):
-    def __init__(self, color=COLOR_BLACK, key=0, value=None, parent=None, left=None, right=None):
+    def __init__(self, color=COLOR_BLACK, key=None, value=None, parent=None, left=None, right=None):
         """红黑节点"""
         self.color = color
         self.key = key
@@ -23,7 +23,16 @@ class RBTree(object):
         self.root = root_node
 
     def search(self, key):
-        pass
+        if self.root is None:  # 空红黑树
+            return None
+        if self.root.key is None:  # 叶子节点
+            return None
+        if self.root.key == key:
+            return self.root.value
+        if self.root.key > key:
+            return RBTree(self.root.left).search(key)
+        if self.root.key < key:
+            return RBTree(self.root.right).search(key)
 
     def insert(self, node):
         pass
