@@ -31,6 +31,13 @@ class RBNode(object):
         if right is not None:
             self.right = right
 
+    def clear(self):
+        self.color = COLOR_BLACK
+        self.key = None
+        self.value = None
+        self.left = None
+        self.right = None
+
     def set_leaf(self):
         left = RBNode()
         left.parent = self
@@ -64,6 +71,10 @@ class RBTree(object):
         if self.root.key < key:
             return RBTree(self.root.right).search(key)
 
+    def find_replace_node(self):
+        """todo 找到一个非nil的叶子节点，用来替代被删除的节点"""
+        pass
+
     def revolve(self):
         """todo 最小子树，需要旋转保持平衡"""
         pass
@@ -78,4 +89,10 @@ class RBTree(object):
             RBTree(target_node.parent).revolve()
 
     def delete(self, key):
-        pass
+        target_node = self.search(key)
+        if target_node.key != key:  # 没找着
+            return
+        shadow_deleted_node = self.find_replace_node()
+        target_node.update(key=shadow_deleted_node.key, value=shadow_deleted_node.value)
+        shadow_deleted_node.clear()
+        RBTree(shadow_deleted_node.parent).revolve()
