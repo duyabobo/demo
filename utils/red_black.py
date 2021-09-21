@@ -16,6 +16,7 @@ class RBNode(object):
         self.parent = parent
         self.left = left
         self.right = right
+        self.set_leaf()
 
     @property
     def is_leaf(self):
@@ -66,7 +67,6 @@ class RBTree(object):
     @classmethod
     def build(cls):
         node = RBNode()
-        node.set_leaf()
         return cls(node)
 
     def search(self, key):
@@ -106,10 +106,6 @@ class RBTree(object):
 
         return self.find_replace_node_LPR(current_node.right)
 
-    def rebalance(self):
-        """todo 红黑树再平衡，需要旋转+变色保持平衡"""
-        pass
-
     def replace_recursive(self, target_node):
         """递归找到一个最低层节点，递归替代被删除的节点"""
         current_node = target_node
@@ -126,7 +122,7 @@ class RBTree(object):
         if target_node.is_leaf:
             node.set_leaf()
             target_node.update(color=COLOR_RED, key=node.key, value=node.value, left=node.left, right=node.left)
-            RBTree(target_node.parent).rebalance()
+            Fake_RBTree(target_node.parent).rebalance()
             return
         elif target_node.key == node.key:
             target_node.update(value=node.value)
@@ -141,6 +137,62 @@ class RBTree(object):
             return
         elif target_node.key == key:
             replace_node = self.replace_recursive(target_node)
-            RBTree(replace_node.parent).rebalance()
+            Fake_RBTree(replace_node.parent).rebalance()
+        else:
+            raise
+
+
+class Fake_RBTree(RBTree):
+    """假的红黑树辅助类，不强制要求根节点是黑色"""
+
+    def rebalance(self):
+        """辅助红黑树再平衡，需要旋转+变色保持平衡。
+        目的是消除1）父子节点都是红色现象(insert)，2）某个叶子节点黑路径不足现象(delete)。"""
+        if self.root.is_leaf:
+            raise
+        if self.root.is_floor:
+            raise
+        if not (self.root.left.is_leaf and self.root.left.is_floor):
+            raise
+        if not (self.root.right.is_leaf and self.root.right.is_floor):
+            raise
+
+        # 通用再平衡原则，不管是增加节点还是删除节点，还是其他别的什么操作，都通用：
+        # 1.同深消除红红
+        # 2.不同深取最深
+        # 3.新根不能变红
+        parent = self.root
+        left = self.root.left
+        right = self.root.right
+        if (parent.color, left.color, right.color) == (COLOR_RED, COLOR_RED, COLOR_RED):
+            raise
+        elif (parent.color, left.color, right.color) == (COLOR_RED, COLOR_RED, COLOR_BLACK):
+            if right.is_leaf:
+                parent_parent = parent.parent
+                parent.parent, left.parent, parent_parent.parent = parent_parent.parent, parent, parent
+                parent.color, left.color, parent_parent.color = COLOR_BLACK, COLOR_RED, COLOR_RED
+            else:
+                parent.color, left.color, right.color = COLOR_BLACK, COLOR_RED, COLOR_RED
+        elif (parent.color, left.color, right.color) == (COLOR_RED, COLOR_BLACK, COLOR_RED):
+            if left.is_leaf:
+                parent_parent = parent.parent
+                parent.parent, right.parent, parent_parent.parent = parent_parent.parent, parent, parent
+                parent.color, right.color, parent_parent.color = COLOR_BLACK, COLOR_RED, COLOR_RED
+            else:
+                parent.color, left.color, right.color = COLOR_BLACK, COLOR_RED, COLOR_RED
+        elif (parent.color, left.color, right.color) == (COLOR_RED, COLOR_BLACK, COLOR_BLACK):
+            return
+        elif (parent.color, left.color, right.color) == (COLOR_BLACK, COLOR_RED, COLOR_RED):
+            return
+        elif (parent.color, left.color, right.color) == (COLOR_BLACK, COLOR_RED, COLOR_BLACK):
+            if not right.is_leaf:  # 右旋
+                left.parent, parent.parent, right.parent = parent.parent, left, parent
+                left.color, parent.color, right.color = COLOR_BLACK, COLOR_RED, COLOR_BLACK
+        elif (parent.color, left.color, right.color) == (COLOR_BLACK, COLOR_BLACK, COLOR_RED):
+            if not left .is_leaf:  # 左旋
+                right.parent, parent.parent, left.parent = parent.parent, right, parent
+                right.color, parent.color, left.color = COLOR_BLACK, COLOR_RED, COLOR_BLACK
+        elif (parent.color, left.color, right.color) == (COLOR_BLACK, COLOR_BLACK, COLOR_BLACK):
+            return
         else:
             raise
