@@ -19,7 +19,13 @@ class RBNode(object):
 
     @property
     def is_leaf(self):
+        """是否是叶子节点"""
         return self.key is None and self.value is None and self.left is None and self.right is None
+
+    @property
+    def is_floor(self):
+        """是否是低层节点"""
+        return self.key is not None and self.value is not None and self.left is None and self.right is None
 
     def update(self, color=None, key=None, value=None, parent=None, left=None, right=None):
         if color is not None:
@@ -77,18 +83,37 @@ class RBTree(object):
         else:  # self.root.key < key:
             return RBTree(self.root.right).search(key)
 
+    def find_replace_node_LPR(self, current_node):
+        """中序遍历找后继"""
+        if current_node.is_floor:
+            return current_node
+        elif current_node.left.is_leaf:
+            return current_node
+        elif current_node.right.is_leaf:
+            return current_node.left
+        else:
+            return self.find_replace_node_LPR(current_node.left)
+
     def find_replace_node(self, current_node):
-        """todo 找到某个节点的'后继'节点"""
-        pass
+        """找到某个节点的'后继'节点: 有一个（非叶子）子节点后继即为子节点，有两个（非叶子）子节点大于其之最小节点为后继"""
+        # mark: 其实本方法直接被find_replace_node_LPR替换也行：不管几个子节点，直接中序遍历找到后继即可。缺点是最差复杂度比较高。
+        if current_node.is_floor:
+            raise
+        if current_node.left.is_leaf:
+            return current_node.right
+        if current_node.right.is_leaf:
+            return current_node.left
+
+        return self.find_replace_node_LPR(current_node.right)
 
     def rebalance(self):
         """todo 红黑树再平衡，需要旋转+变色保持平衡"""
         pass
 
     def replace_recursive(self, target_node):
-        """递归找到一个非nil的叶子节点，递归替代被删除的节点"""
+        """递归找到一个最低层节点，递归替代被删除的节点"""
         current_node = target_node
-        while not (current_node.left.is_leaf and current_node.right.is_leaf):
+        while not current_node.is_floor:
             replace_node = self.find_replace_node(current_node)
             current_node.update(key=replace_node.key, value=replace_node.value)
             current_node = replace_node
