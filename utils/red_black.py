@@ -75,8 +75,8 @@ class RBTree(object):
         """todo 找到一个非nil的叶子节点，用来替代被删除的节点"""
         pass
 
-    def revolve(self):
-        """todo 最小子树，需要旋转保持平衡"""
+    def rebalance(self):
+        """todo 红黑树再平衡，需要旋转保持平衡"""
         pass
 
     def insert(self, node):
@@ -86,7 +86,7 @@ class RBTree(object):
         else:  # 叶子节点
             node.set_leaf()
             target_node.update(color=COLOR_RED, key=node.key, value=node.value, left=node.left, right=node.left)
-            RBTree(target_node.parent).revolve()
+            RBTree(target_node.parent).rebalance()
 
     def delete(self, key):
         target_node = self.search(key)
@@ -95,4 +95,4 @@ class RBTree(object):
         shadow_deleted_node = self.find_replace_node()
         target_node.update(key=shadow_deleted_node.key, value=shadow_deleted_node.value)
         shadow_deleted_node.clear()
-        RBTree(shadow_deleted_node.parent).revolve()
+        RBTree(shadow_deleted_node.parent).rebalance()
