@@ -16,17 +16,6 @@ class RBNode(object):
         self.parent = parent
         self.left = left
         self.right = right
-        self.set_leaf()
-
-    @property
-    def is_leaf(self):
-        """是否是叶子节点"""
-        return self.key is None and self.value is None and self.left is None and self.right is None
-
-    @property
-    def is_floor(self):
-        """是否是低层节点"""
-        return self.key is not None and self.value is not None and self.left.is_leaf and self.right.is_leaf
 
     def update(self, color=None, key=None, value=None, parent=None, left=None, right=None):
         if color is not None:
@@ -42,14 +31,24 @@ class RBNode(object):
         if right is not None:
             self.right = right
 
-    def clear(self):
+    @property
+    def is_leaf(self):
+        """是否是叶子节点"""
+        return self.left is None and self.right is None
+
+    @property
+    def is_floor(self):
+        """是否是低层节点"""
+        return self.left.is_leaf and self.right.is_leaf
+
+    def floor_convert_leaf(self):
         self.color = COLOR_BLACK
         self.key = None
         self.value = None
         self.left = None
         self.right = None
 
-    def set_leaf(self):
+    def leaf_convert_floor(self):
         left = RBNode()
         left.parent = self
         self.left = left
@@ -113,14 +112,15 @@ class RBTree(object):
             replace_node = self.find_replace_node(current_node)
             current_node.update(key=replace_node.key, value=replace_node.value)
             current_node = replace_node
-        current_node.clear()
+        current_node.floor_convert_leaf()
         return current_node
 
-    def insert(self, node):
+    def insert(self, key, value):
         """关键路径是：找到插入点，插入一个红色节点，最后对插入节点的父节点再平衡"""
+        node = RBNode(key=key, value=value)
         target_node = self.search(node.key)
         if target_node.is_leaf:
-            node.set_leaf()
+            node.leaf_convert_floor()
             target_node.update(color=COLOR_RED, key=node.key, value=node.value, left=node.left, right=node.left)
             Fake_RBTree(target_node.parent).rebalance()
             return
