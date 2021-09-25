@@ -26,7 +26,7 @@ class RBNode(object):
     @property
     def is_floor(self):
         """是否是低层节点"""
-        return self.key is not None and self.value is not None and self.left is None and self.right is None
+        return self.key is not None and self.value is not None and self.left.is_leaf and self.right.is_leaf
 
     def update(self, color=None, key=None, value=None, parent=None, left=None, right=None):
         if color is not None:
