@@ -91,10 +91,9 @@ class Checker(object):
         assert secret, 'get secret error'
         return secret
 
-    @staticmethod
-    def check_sign(secret):
+    def check_sign(self, secret):
         """签名认证"""
-        data = jwt.decode(sign, secret, algorithm=ALGORITHM_SIGN)  # 完成有效期校验和 secret 校验，具体加密方式多种多样不一定jwt
+        data = jwt.decode(self.sign, secret, algorithm=ALGORITHM_SIGN)  # 完成有效期校验和 secret 校验，具体加密方式多种多样不一定jwt
         return data['exp']  # 过期时间戳，精确到微秒，假设不会有两个请求的 exp 是一样的
 
     def check_unique(self, exp):
