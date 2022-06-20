@@ -15,4 +15,7 @@ engine = create_engine('mysql+pymysql://%s:%s@%s:%s/%s?charset=utf8' %
 
 redis_host = config.get('redis', 'host')
 redis_port = config.get('redis', 'port')
+
+# redis_host = '127.0.0.1'
+# redis_port = 6379
 redis_cli = StrictRedis(redis_host, redis_port)
